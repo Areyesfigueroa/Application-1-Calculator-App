@@ -1,0 +1,50 @@
+
+html {
+    font-size: 20px;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+/*
+------------------------------
+CALCULATOR
+------------------------------
+*/
+.calculator {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    width: 300px;
+    height: auto;
+    margin: auto;
+    background-color: #ccc;
+}
+
+/*
+------------------------------
+DISPLAY
+------------------------------
+*/
+.display {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    width: auto;
+    height: auto;
+    box-sizing: border-box;
+}
+
+.display--btn {
+    position: absolute;
+    width: auto;
+    height: 100%;
+    top: 0;
+}
+
+.display--input {
+    display: block;
+    padding: 10px;
+    text-align: right;
+}
+
