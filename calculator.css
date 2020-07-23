@@ -57,14 +57,14 @@ DISPLAY
     box-sizing: border-box;
 }
 
-.display--btn {
+.clear-btn {
     position: absolute;
     width: auto;
     height: 100%;
     top: 0;
 }
 
-.display--input {
+.display-input {
     display: block;
     padding: 10px;
     text-align: right;
@@ -76,6 +76,7 @@ PAD
 ------------------------------
 */
 
+/* Base Pad */
 .pad {
     display: flex;
     flex-direction: row;
@@ -84,15 +85,14 @@ PAD
 }
 
 /* Numbers Pad */
-
 .numbers--pad {
     background-color: lightblue;
     width: 100%;
 }
 
+/* Operations Pad */
 .operations--pad {
     background-color: lightcoral;
 }
 
-/* Operations Pad */
 
