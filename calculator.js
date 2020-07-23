@@ -27,7 +27,7 @@ const calculate = (num1, symbol, num2) => {
         case '-':
             result = num1 - num2;
             break;
-        case '*':
+        case 'x':
             result = num1 * num2;
             break;
         case '/':
@@ -63,27 +63,25 @@ numpadBtnsArr.forEach((btn) => {
 
         if(num === '=') {
             num = calculate(result, mathSymbol, Number.parseFloat(inputValue));
-            mathSymbol = null;
             result = null;
-        } else if((inputValue === '.' || inputValue > 0) && !mathSymbol) {
+            mathSymbol = null;
+        } else if((inputValue === '.') || !mathSymbol) {
             num = inputValue+num;
         }
 
-        updateDisplay(Number.parseFloat(num));
+        updateDisplay(num);
     });
 });
 
 operationsArr.forEach((btn => {
     btn.addEventListener('click', (event) => {
         let currNum = Number.parseFloat(document.querySelector(DOMstrings.displayInput).value);
-        mathSymbol = event.target.textContent;
-
         if(!result) {
             result = currNum;
         } else {
             result = calculate(result, mathSymbol, currNum);
-            mathSymbol = null;
         }
+        mathSymbol = event.target.textContent;
         updateDisplay(result);
     });
 }));
