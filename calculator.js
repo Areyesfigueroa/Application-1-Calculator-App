@@ -5,7 +5,7 @@ const DOMstrings = {
     clearBtn: ".clear-btn"
 };
 
-let result = null;
+let exp1='', exp2='', result=0, prevNum=0;
 let mathSymbol = null;
 
 const numpadElement = document.querySelector(DOMstrings.numbersPad);
@@ -19,28 +19,28 @@ const numpadBtnsArr = Array.prototype.slice.call(numpadBtnsCollection);
 const operationsArr = Array.prototype.slice.call(operationsBtnsCollection);
 
 const calculate = (num1, symbol, num2) => {
-    let result = 0;
+    let answer = 0;
     switch(symbol){
         case '+':
-            result = num1 + num2;
+            answer = num1 + num2;
             break;
         case '-':
-            result = num1 - num2;
+            answer = num1 - num2;
             break;
         case 'x':
-            result = num1 * num2;
+            answer = num1 * num2;
             break;
         case '/':
-            result = num1 / num2;
+            answer = num1 / num2;
             break;
         default:
-            result = num1;
+            answer = 0;
     }
 
-    return result;
+    return answer;
 }
 
-updateDisplay = (num) => {
+const updateDisplay = (num) => {
     //Cannot show the following characters =
     if(Number.isNaN(num)) return;
 
@@ -48,41 +48,72 @@ updateDisplay = (num) => {
     displayInputEl.value = num;
 }
 
+const resetValues = () => {
+    mathSymbol = null;
+    exp1='';
+    exp2='';
+    prevNum=0;
+}
+
 //Event Listeners
 clearBtn.addEventListener("click", () => {
-    const displayInputEl = document.querySelector(DOMstrings.displayInput);
-    result = null;
-    mathSymbol = null;
-    displayInputEl.value = '';
+    resetValues();
+    updateDisplay(0);
 });
 
+//Number Pad Event Listener
 numpadBtnsArr.forEach((btn) => {
     btn.addEventListener('click', (event) => {
         let num = event.target.textContent;
         const inputValue = document.querySelector(DOMstrings.displayInput).value;
 
         if(num === '=') {
-            num = calculate(result, mathSymbol, Number.parseFloat(inputValue));
-            result = null;
-            mathSymbol = null;
-        } else if((inputValue === '.') || !mathSymbol) {
-            num = inputValue+num;
+
+            //Calculate expressions
+            let result = calculate(Number.parseFloat(exp1), mathSymbol, Number.parseFloat(exp2));
+            
+            //Reset Values
+            resetValues();
+            
+            //Update display
+            updateDisplay(result);
+        }else if(!mathSymbol) {
+            //Build Expression 1
+            exp1 = exp1+num;
+
+            //Update display
+            updateDisplay(exp1);
+        } else {
+            //Update first expression if continuing calculation.
+            if(!exp1) exp1 = inputValue;
+
+            //Build Expression 2
+            exp2 = exp2+num;
+            
+            //Update display
+            updateDisplay(exp2);
         }
 
-        updateDisplay(num);
+        //Update prev number.
+        prevNum = isNaN(num)? prevNum: num;
     });
 });
 
+//Operations Pad Event Listener
 operationsArr.forEach((btn => {
     btn.addEventListener('click', (event) => {
-        let currNum = Number.parseFloat(document.querySelector(DOMstrings.displayInput).value);
-        if(!result) {
-            result = currNum;
-        } else {
-            result = calculate(result, mathSymbol, currNum);
+        if(exp1 && exp2 && mathSymbol) {
+            //Calculate equation
+            let result = calculate(Number.parseFloat(exp1), mathSymbol, Number.parseFloat(exp2));
+
+            //Update Values
+            resetValues();
+
+            //Diplay Result
+            updateDisplay(result);
         }
+
         mathSymbol = event.target.textContent;
-        updateDisplay(result);
     });
 }));
 
