@@ -5,7 +5,7 @@ const DOMstrings = {
     clearBtn: ".clear-btn"
 };
 
-let exp1='', exp2='', result=0, prevNum=0;
+let exp1='', exp2='', result=0, prevExp=0;
 let mathSymbol = null;
 
 const numpadElement = document.querySelector(DOMstrings.numbersPad);
@@ -49,10 +49,11 @@ const updateDisplay = (num) => {
 }
 
 const resetValues = () => {
-    mathSymbol = null;
+    mathSymbol = '';
     exp1='';
     exp2='';
-    prevNum=0;
+    result=0;
+    prevExp=0;
 }
 
 //Event Listeners
@@ -68,51 +69,51 @@ numpadBtnsArr.forEach((btn) => {
         const inputValue = document.querySelector(DOMstrings.displayInput).value;
 
         if(num === '=') {
+            if(!exp1 && !exp2 && !mathSymbol) return;
 
-            //Calculate expressions
-            let result = calculate(Number.parseFloat(exp1), mathSymbol, Number.parseFloat(exp2));
-            
-            //Reset Values
+            if(!prevExp) {
+                prevExp = exp2;
+            } else {
+                exp1 = inputValue;
+                exp2 = prevExp;
+            }
+
+            let res = calculate(+exp1, mathSymbol, +exp2);
+            updateDisplay(res);
+            // resetValues();
+        } else if(prevExp) {
             resetValues();
-            
-            //Update display
-            updateDisplay(result);
-        }else if(!mathSymbol) {
-            //Build Expression 1
-            exp1 = exp1+num;
-
-            //Update display
-            updateDisplay(exp1);
-        } else {
-            //Update first expression if continuing calculation.
-            if(!exp1) exp1 = inputValue;
-
-            //Build Expression 2
-            exp2 = exp2+num;
-            
-            //Update display
-            updateDisplay(exp2);
         }
-
-        //Update prev number.
-        prevNum = isNaN(num)? prevNum: num;
+        
+        if(mathSymbol && num !== '=') {
+            exp2 += num;
+            updateDisplay(exp2);
+        } else if(!mathSymbol && num !== '='){
+            exp1 += num;
+            updateDisplay(exp1);
+        }
     });
 });
 
 //Operations Pad Event Listener
 operationsArr.forEach((btn => {
     btn.addEventListener('click', (event) => {
-        if(exp1 && exp2 && mathSymbol) {
-            //Calculate equation
-            let result = calculate(Number.parseFloat(exp1), mathSymbol, Number.parseFloat(exp2));
 
-            //Update Values
+        const inputValue = document.querySelector(DOMstrings.displayInput).value;
+
+        if(prevExp) {
             resetValues();
-
-            //Diplay Result
-            updateDisplay(result);
         }
 
+        if(inputValue && !exp1) {
+            exp1 = inputValue;
+        }
+
+        if(exp1 && exp2 && mathSymbol) {
+            exp1 = calculate(+exp1, mathSymbol, +exp2);
+            exp2 = '';
+            updateDisplay(exp1);
+        }
         mathSymbol = event.target.textContent;
     });
 }));
