@@ -56,10 +56,31 @@ const resetValues = () => {
     prevExp=0;
 }
 
-//Event Listeners
-clearBtn.addEventListener("click", () => {
+const clearEverything = () => {
     resetValues();
     updateDisplay(0);
+}
+
+const clearCurrentExpression = () => {
+    if((!mathSymbol && !prevExp) || prevExp) {
+        exp1 = '';
+    } else if((mathSymbol && !prevExp) || !prevExp) {
+        exp2 = '';
+    }
+
+    updateDisplay(0);
+}
+
+//Event Listeners
+clearBtn.addEventListener("click", (event) => {
+
+    console.log(event.target.textContent);
+    if(event.target.textContent === 'CE') {
+        clearEverything();
+    } else {
+        clearCurrentExpression();
+        event.target.textContent = 'CE';
+    }
 });
 
 //Number Pad Event Listener
@@ -80,16 +101,25 @@ numpadBtnsArr.forEach((btn) => {
 
             let res = calculate(+exp1, mathSymbol, +exp2);
             updateDisplay(res);
-            // resetValues();
         } else if(prevExp) {
             resetValues();
         }
         
         if(mathSymbol && num !== '=') {
+            //Build expression 2
             exp2 += num;
+            
+            //Update ClearBtn Status
+            clearBtn.textContent = +exp2 > 0 ? 'C': 'CE';
+
             updateDisplay(exp2);
         } else if(!mathSymbol && num !== '='){
+            //Build Expression 1
             exp1 += num;
+
+            //Update ClearBtn Status
+            clearBtn.textContent = +exp1 > 0 ? 'C': 'CE';
+
             updateDisplay(exp1);
         }
     });
