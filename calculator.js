@@ -71,6 +71,22 @@ const clearCurrentExpression = () => {
     updateDisplay(0);
 }
 
+function isInt(num) {
+    return num % 1 === 0;
+}
+
+const handleDecimal = (currInput, exp) => {
+    //Handle muliple decimals
+    if(currInput === '.') {
+    
+        //Check we don't have one already. If we do exit.
+        if(exp.indexOf(currInput) !== -1) return;
+        
+        //Check that there is a number in front of the decimal. 
+        return exp.length === 0 ? '0.': currInput;
+    }
+}
+
 //Event Listeners
 clearBtn.addEventListener("click", (event) => {
 
@@ -88,6 +104,7 @@ numpadBtnsArr.forEach((btn) => {
     btn.addEventListener('click', (event) => {
         let num = event.target.textContent;
         const inputValue = document.querySelector(DOMstrings.displayInput).value;
+        let displayValue = '';
 
         if(num === '=') {
             if(!exp1 && !exp2 && !mathSymbol) return;
@@ -100,28 +117,67 @@ numpadBtnsArr.forEach((btn) => {
             }
 
             let res = calculate(+exp1, mathSymbol, +exp2);
-            updateDisplay(res);
+
+            if(isInt(res)) {
+                //Convert to scientific notation
+                res = res.toString().length > 10 ? res.toExponential(3): res;
+            } else {
+                //Make sure the result does not go over 3 points after decimal. 
+                res = res.toFixed(3)/1;
+            }
+
+            //Update display
+            displayValue = res;
         } else if(prevExp) {
             resetValues();
         }
         
         if(mathSymbol && num !== '=') {
+            
+            //Check we dont go over 10 digits
+            if(exp2.length >= 10) return;
+
+            //Handle muliple decimals
+            if(num === '.') {
+                
+                //Check we don't have one already. If we do exit.
+                if(exp2.indexOf(num) !== -1) return;
+                
+                //Check that there is a number in front of the decimal. 
+                num = exp2.length === 0 ? '0.': num;
+            }
+            
             //Build expression 2
             exp2 += num;
-            
-            //Update ClearBtn Status
-            clearBtn.textContent = +exp2 > 0 ? 'C': 'CE';
 
-            updateDisplay(exp2);
+            //Update display
+            displayValue = exp2;
         } else if(!mathSymbol && num !== '='){
+
+            //Check we dont go over 10 digits
+            if(exp1.length >= 10) return;
+
+            //Handle muliple decimals
+            if(num === '.') {
+                //Check we don't have one already. If we do exit.
+                if(exp1.indexOf(num) !== -1) return;
+
+                //Check that there is a number in front of the decimal. 
+                num = exp1.length === 0 ? '0.': num;
+            }
+
             //Build Expression 1
             exp1 += num;
 
-            //Update ClearBtn Status
-            clearBtn.textContent = +exp1 > 0 ? 'C': 'CE';
-
-            updateDisplay(exp1);
+            //Update display
+            displayValue = exp1;
         }
+
+        //Update the clear btn
+        clearBtn.textContent = +displayValue > 0 ? 'C':'CE';
+
+        //Display result
+        updateDisplay(displayValue);
     });
 });
 
