@@ -5,9 +5,6 @@ const DOMstrings = {
     clearBtn: ".clear-btn"
 };
 
-let exp1='', exp2='', result=0, prevExp=0;
-let mathSymbol = null;
-
 const numpadElement = document.querySelector(DOMstrings.numbersPad);
 const operationsElement = document.querySelector(DOMstrings.operationsPad);
 const clearBtn = document.querySelector(DOMstrings.clearBtn);
@@ -18,6 +15,10 @@ const operationsBtnsCollection = operationsElement.getElementsByTagName('button'
 const numpadBtnsArr = Array.prototype.slice.call(numpadBtnsCollection);
 const operationsArr = Array.prototype.slice.call(operationsBtnsCollection);
 
+let exp1='', exp2='', result=0, prevExp=0;
+let mathSymbol = null;
+
+//HELPER METHODS
 const calculate = (num1, symbol, num2) => {
     let answer = 0;
     switch(symbol){
@@ -75,19 +76,70 @@ function isInt(num) {
     return num % 1 === 0;
 }
 
-const handleDecimal = (currInput, exp) => {
+const buildExpression = (newInput, exp) => {
+    //Check we dont go over 10 digits
+    if(exp.length >= 10) return exp;
+
     //Handle muliple decimals
-    if(currInput === '.') {
-    
+    if(newInput === '.') {
+        
         //Check we don't have one already. If we do exit.
-        if(exp.indexOf(currInput) !== -1) return;
+        if(exp.indexOf(newInput) !== -1) return exp;
         
         //Check that there is a number in front of the decimal. 
-        return exp.length === 0 ? '0.': currInput;
+        newInput = exp.length === 0 ? '0.': newInput;
+    }
+    
+    //Build expression 
+    exp += newInput;
+
+    //Return new expression.
+    return exp;
+}
+
+//MAIN METHODS
+const buildExpressions = (newInput) => {
+    if(!mathSymbol) {
+        //Build expression 1
+        exp1 = buildExpression(newInput, exp1);
+        return exp1;
+    } else {
+        //Build expression 2
+        exp2 = buildExpression(newInput, exp2);
+        return exp2;
     }
 }
 
-//Event Listeners
+//Formats big numbers into more readable expressions. 
+const compressNumber = (num, digits=3) => {
+    if(isInt(num)) {
+        //Convert to scientific notation
+        return num.toString().length > 10 ? num.toExponential(digits): num;
+    } else {
+        //Make sure the result does not go over 3 points after decimal. 
+        return num.toFixed(digits)/1;
+    }
+}
+
+// Calculates equation and handles repeated evaluations when called in a row. 
+const evaluateEquation = () => {
+    const inputValue = document.querySelector(DOMstrings.displayInput).value;
+
+    if(!exp1 && !exp2 && !mathSymbol) return;
+
+    //Prepare for the second time we evaluate the equation.
+    if(!prevExp) {
+        prevExp = exp2;
+    } else {
+        exp1 = inputValue;
+        exp2 = prevExp;
+    }
+
+    //Calculate result
+    return compressNumber(calculate(+exp1, mathSymbol, +exp2));
+}
+
+//EVENT LISTENERS
 clearBtn.addEventListener("click", (event) => {
 
     console.log(event.target.textContent);
@@ -103,74 +155,16 @@ clearBtn.addEventListener("click", (event) => {
 numpadBtnsArr.forEach((btn) => {
     btn.addEventListener('click', (event) => {
         let num = event.target.textContent;
-        const inputValue = document.querySelector(DOMstrings.displayInput).value;
         let displayValue = '';
 
         if(num === '=') {
-            if(!exp1 && !exp2 && !mathSymbol) return;
-
-            if(!prevExp) {
-                prevExp = exp2;
-            } else {
-                exp1 = inputValue;
-                exp2 = prevExp;
-            }
-
-            let res = calculate(+exp1, mathSymbol, +exp2);
-
-            if(isInt(res)) {
-                //Convert to scientific notation
-                res = res.toString().length > 10 ? res.toExponential(3): res;
-            } else {
-                //Make sure the result does not go over 3 points after decimal. 
-                res = res.toFixed(3)/1;
-            }
-
-            //Update display
-            displayValue = res;
+            displayValue = evaluateEquation();
         } else if(prevExp) {
             resetValues();
         }
         
-        if(mathSymbol && num !== '=') {
-            
-            //Check we dont go over 10 digits
-            if(exp2.length >= 10) return;
-
-            //Handle muliple decimals
-            if(num === '.') {
-                
-                //Check we don't have one already. If we do exit.
-                if(exp2.indexOf(num) !== -1) return;
-                
-                //Check that there is a number in front of the decimal. 
-                num = exp2.length === 0 ? '0.': num;
-            }
-            
-            //Build expression 2
-            exp2 += num;
-
-            //Update display
-            displayValue = exp2;
-        } else if(!mathSymbol && num !== '='){
-
-            //Check we dont go over 10 digits
-            if(exp1.length >= 10) return;
-
-            //Handle muliple decimals
-            if(num === '.') {
-                //Check we don't have one already. If we do exit.
-                if(exp1.indexOf(num) !== -1) return;
-
-                //Check that there is a number in front of the decimal. 
-                num = exp1.length === 0 ? '0.': num;
-            }
-
-            //Build Expression 1
-            exp1 += num;
-
-            //Update display
-            displayValue = exp1;
+        if(num !== '=') {
+            displayValue = buildExpressions(num);
         }
 
         //Update the clear btn
@@ -187,19 +181,16 @@ operationsArr.forEach((btn => {
 
         const inputValue = document.querySelector(DOMstrings.displayInput).value;
 
-        if(prevExp) {
-            resetValues();
-        }
+        if(prevExp) resetValues();
 
-        if(inputValue && !exp1) {
-            exp1 = inputValue;
-        }
+        if(inputValue && !exp1) exp1 = inputValue;
 
         if(exp1 && exp2 && mathSymbol) {
-            exp1 = calculate(+exp1, mathSymbol, +exp2);
+            exp1 = compressNumber(calculate(+exp1, mathSymbol, +exp2));
             exp2 = '';
             updateDisplay(exp1);
         }
+        
         mathSymbol = event.target.textContent;
     });
 }));
