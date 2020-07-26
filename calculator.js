@@ -2,10 +2,11 @@
 /*---- INITIALIZE VARIABLES --*/
 /*---------------------------*/
 const DOMstrings = {
-    numbersPad: ".numbers--pad",
-    operationsPad: ".operations--pad",
+    pad: ".pad",
+    operation: 'operation',
     displayInput: ".display-input",
     clearBtn: ".clear-btn"
+
 };
 
 const KeyCodes = {
@@ -21,15 +22,14 @@ const KeyCodes = {
     enter: 13
 }
 
-const numpadElement = document.querySelector(DOMstrings.numbersPad);
-const operationsElement = document.querySelector(DOMstrings.operationsPad);
+const padElement = document.querySelector(DOMstrings.pad);
 const clearBtn = document.querySelector(DOMstrings.clearBtn);
 
-const numpadBtnsCollection = numpadElement.getElementsByTagName('button');
-const operationsBtnsCollection = operationsElement.getElementsByTagName('button');
+const padBtnsCollection = padElement.getElementsByTagName('button');
+const padBtnsArr = Array.prototype.slice.call(padBtnsCollection);
 
-const numpadBtnsArr = Array.prototype.slice.call(numpadBtnsCollection);
-const operationsArr = Array.prototype.slice.call(operationsBtnsCollection);
+let numpadBtnsArr = padBtnsArr.filter((btn) => !btn.classList.contains(DOMstrings.operation));
+let operationBtnsArr = padBtnsArr.filter((btn) => btn.classList.contains(DOMstrings.operation));
 
 let exp1='', exp2='', result=0, prevExp=0;
 let mathSymbol = null;
@@ -268,7 +268,7 @@ numpadBtnsArr.forEach((btn) => {
 });
 
 //Operations Pad Event Listener
-operationsArr.forEach((btn => {
+operationBtnsArr.forEach((btn => {
     btn.addEventListener('click', (event) => handleOperationsPad(event.target.textContent));
 }));
 

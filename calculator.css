@@ -75,7 +75,7 @@ DISPLAY
 
 .display-group {
     position: relative;
-    margin: 25px 10px 0px 10px;
+    margin: 25px 10px 10px 10px;
     display: flex;
     flex-direction: row;
     justify-content: space-evenly;
@@ -111,24 +111,10 @@ PAD
 ------------------------------
 */
 
-/* Base Pad */
 .pad {
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     justify-content: space-evenly;
     padding: 5px;
 }
-
-/* Numbers Pad */
-.numbers--pad {
-    background-color: var(--calc-bg-color);
-    width: 100%;
-    margin-right: 10px;
-}
-
-/* Operations Pad */
-.operations--pad {
-    background-color: var(--calc-bg-color);
-}
-
 
