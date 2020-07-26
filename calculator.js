@@ -1,9 +1,25 @@
+//*---------------------------*/
+/*---- INITIALIZE VARIABLES --*/
+/*---------------------------*/
 const DOMstrings = {
     numbersPad: ".numbers--pad",
     operationsPad: ".operations--pad",
     displayInput: ".display-input",
     clearBtn: ".clear-btn"
 };
+
+const KeyCodes = {
+    zero: 48,
+    eight: 56,
+    nine: 57,
+    shift: 16,
+    equal: 187,
+    minus: 189,
+    divide: 191,
+    period: 190,
+    clear: 8,
+    enter: 13
+}
 
 const numpadElement = document.querySelector(DOMstrings.numbersPad);
 const operationsElement = document.querySelector(DOMstrings.operationsPad);
@@ -17,8 +33,11 @@ const operationsArr = Array.prototype.slice.call(operationsBtnsCollection);
 
 let exp1='', exp2='', result=0, prevExp=0;
 let mathSymbol = null;
+let prevKey = 0;
 
-//HELPER METHODS
+//*---------------------------*/
+/*---- HELPER METHODS ------*/
+/*---------------------------*/
 const calculate = (num1, symbol, num2) => {
     let answer = 0;
     switch(symbol){
@@ -97,7 +116,9 @@ const buildExpression = (newInput, exp) => {
     return exp;
 }
 
-//MAIN METHODS
+//*---------------------------*/
+/*------- MAIN METHODS ------*/
+/*---------------------------*/
 const buildExpressions = (newInput) => {
     if(!mathSymbol) {
         //Build expression 1
@@ -139,62 +160,132 @@ const evaluateEquation = () => {
     return compressNumber(calculate(+exp1, mathSymbol, +exp2));
 }
 
-//EVENT LISTENERS
-clearBtn.addEventListener("click", (event) => {
+// Handles Number Pad Section Logic
+const handleNumberPad = (newInput) => {
+    let displayValue = '';
 
-    console.log(event.target.textContent);
-    if(event.target.textContent === 'CE') {
+    if(newInput === '=') {
+        displayValue = evaluateEquation();
+    } else if(prevExp) {
+        resetValues();
+    }
+    
+    if(newInput !== '=') {
+        displayValue = buildExpressions(newInput);
+    }
+
+    //Update the clear btn
+    clearBtn.textContent = +displayValue > 0 ? 'C':'CE';
+
+    //Display result
+    updateDisplay(displayValue);
+}
+
+const handleKeyboardNumberPad = (keyCode) => {
+    if((keyCode >= KeyCodes.zero && keyCode <= KeyCodes.nine) && prevKey !== KeyCodes.shift) {
+        handleNumberPad(String.fromCharCode(keyCode));
+    }
+
+    //Period Sign
+    if(keyCode === KeyCodes.period && prevKey !== KeyCodes.shift) {
+        handleNumberPad('.');
+    }
+
+    //Equal Sign
+    if(((prevKey !== KeyCodes.shift) && (keyCode === KeyCodes.equal)) || (keyCode === KeyCodes.enter)) {
+        handleNumberPad('=');
+    }
+}
+
+// Handles Math Operations Section Logic
+const handleOperationsPad = (newInput) => {
+
+    const inputValue = document.querySelector(DOMstrings.displayInput).value;
+
+    if(prevExp) resetValues();
+
+    if(inputValue && !exp1) exp1 = inputValue;
+
+    if(exp1 && exp2 && mathSymbol) {
+        exp1 = compressNumber(calculate(+exp1, mathSymbol, +exp2));
+        exp2 = '';
+        updateDisplay(exp1);
+    }
+
+    mathSymbol = newInput;
+}
+
+const handleKeyboardOperationsPad = (keyCode) => {
+    //Add
+    if((prevKey === KeyCodes.shift) && (keyCode === KeyCodes.equal)) {
+        console.log('+');
+        handleOperationsPad('+');
+    }
+
+    //Subtract
+    if(keyCode === KeyCodes.minus) {
+        console.log('-');
+        handleOperationsPad('-');
+    }
+
+    //Multiply
+    if((prevKey === KeyCodes.shift) && (keyCode === KeyCodes.eight)) {
+        console.log('*');
+        handleOperationsPad('x');
+    }
+
+    //Divide
+    if(keyCode === KeyCodes.divide) {
+        console.log('/');
+        handleOperationsPad('/');
+    }
+}
+
+const handleClearDisplay = () => {
+    if(clearBtn.textContent === 'CE') {
         clearEverything();
     } else {
         clearCurrentExpression();
-        event.target.textContent = 'CE';
+        clearBtn.textContent = 'CE';
     }
-});
+    console.log(clearBtn.textContent);
+}
+
+const handleKeyboardClearDisplay = (keyCode) => {
+    if(keyCode === KeyCodes.clear) {
+        handleClearDisplay();
+    }
+}
+
+/*---------------------------*/
+/*---- EVENT LISTENERS ------*/
+/*---------------------------*/
+clearBtn.addEventListener("click", handleClearDisplay);
 
 //Number Pad Event Listener
 numpadBtnsArr.forEach((btn) => {
-    btn.addEventListener('click', (event) => {
-        let num = event.target.textContent;
-        let displayValue = '';
-
-        if(num === '=') {
-            displayValue = evaluateEquation();
-        } else if(prevExp) {
-            resetValues();
-        }
-        
-        if(num !== '=') {
-            displayValue = buildExpressions(num);
-        }
-
-        //Update the clear btn
-        clearBtn.textContent = +displayValue > 0 ? 'C':'CE';
-
-        //Display result
-        updateDisplay(displayValue);
-    });
+    btn.addEventListener('click', (event) => handleNumberPad(event.target.textContent));
 });
 
 //Operations Pad Event Listener
 operationsArr.forEach((btn => {
-    btn.addEventListener('click', (event) => {
-
-        const inputValue = document.querySelector(DOMstrings.displayInput).value;
-
-        if(prevExp) resetValues();
-
-        if(inputValue && !exp1) exp1 = inputValue;
-
-        if(exp1 && exp2 && mathSymbol) {
-            exp1 = compressNumber(calculate(+exp1, mathSymbol, +exp2));
-            exp2 = '';
-            updateDisplay(exp1);
-        }
-        
-        mathSymbol = event.target.textContent;
-    });
+    btn.addEventListener('click', (event) => handleOperationsPad(event.target.textContent));
 }));
 
+//Keyboard Event Listener
+document.addEventListener('keydown', (event) => {
+    let keyCode = event.keyCode;
+    
+    //Numbers Pad
+    handleKeyboardNumberPad(keyCode);
+    
+    //Operations Pad
+    handleKeyboardOperationsPad(keyCode);
+    
+    //Clear Btn
+    handleKeyboardClearDisplay(keyCode);
 
+    prevKey = keyCode;
+})
 
 
