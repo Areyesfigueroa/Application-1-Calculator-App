@@ -13,6 +13,9 @@
     --operation-bg-btn-color: rgb(4, 168, 4);
     --operation-active-bg-btn-color: rgb(3, 110, 3);
 
+    --memory-bg-btn-color: rgb(4, 168, 4);
+    --memory-active-bg-btn-color: rgb(3, 110, 3);
+
     --bevel-radius: 10px;
 }
 
@@ -33,7 +36,7 @@ button {
 
 /*
 ------------------------------
-GENERAL
+BUTTONS
 ------------------------------
 */
 
@@ -73,7 +76,6 @@ button.operation {
 
 button.operation.active {
     color: var(--numpad-active-btn-color);
-    box-shadow: none;
     background-color: var(--operation-active-bg-btn-color);
 }
 
@@ -81,9 +83,12 @@ button.operation:hover,
 button.operation:active,
 button.operation:focus {
     color: var(--numpad-active-btn-color);
-    box-shadow: none;
     background-color: rgb(3, 110, 3);
 
+}
+
+button.memory {
+    color: var(--memory-btn-color);
 }
 
 /*

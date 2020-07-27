@@ -4,6 +4,7 @@
 const DOMstrings = {
     pad: ".pad",
     operation: 'operation',
+    memory: "memory",
     displayInput: ".display-input",
     clearBtn: ".clear-btn"
 
@@ -28,8 +29,9 @@ const clearBtn = document.querySelector(DOMstrings.clearBtn);
 const padBtnsCollection = padElement.getElementsByTagName('button');
 const padBtnsArr = Array.prototype.slice.call(padBtnsCollection);
 
-let numpadBtnsArr = padBtnsArr.filter((btn) => !btn.classList.contains(DOMstrings.operation));
+let numpadBtnsArr = padBtnsArr.filter((btn) => !btn.classList.contains(DOMstrings.operation) && !btn.classList.contains(DOMstrings.memory));
 let operationBtnsArr = padBtnsArr.filter((btn) => btn.classList.contains(DOMstrings.operation));
+let memoryBtnsArr = padBtnsArr.filter((btn) => btn.classList.contains(DOMstrings.memory));
 
 let exp1='', exp2='', result=0, prevExp=0;
 let mathSymbol = null;
@@ -64,6 +66,10 @@ const updateDisplay = (num) => {
     //Cannot show the following characters =
     if(Number.isNaN(num)) return;
 
+    //Update the clear btn
+    clearBtn.textContent = +num > 0 ? 'C':'CE';
+
+    //Update Input element
     const displayInputEl = document.querySelector(DOMstrings.displayInput);
     displayInputEl.value = num;
 }
@@ -116,6 +122,18 @@ const buildExpression = (newInput, exp) => {
     return exp;
 }
 
+const updatePrevExpression = () => {
+    const inputValue = document.querySelector(DOMstrings.displayInput).value;
+
+    //Prepare for the second time we evaluate the equation.
+    if(!prevExp) {
+        prevExp = exp2;
+    } else {
+        exp1 = inputValue;
+        exp2 = prevExp;
+    }
+}
+
 //*---------------------------*/
 /*------- MAIN METHODS ------*/
 /*---------------------------*/
@@ -144,17 +162,11 @@ const compressNumber = (num, digits=3) => {
 
 // Calculates equation and handles repeated evaluations when called in a row. 
 const evaluateEquation = () => {
-    const inputValue = document.querySelector(DOMstrings.displayInput).value;
 
-    if(!exp1 && !exp2 && !mathSymbol) return;
+    if(!exp2) return;
 
     //Prepare for the second time we evaluate the equation.
-    if(!prevExp) {
-        prevExp = exp2;
-    } else {
-        exp1 = inputValue;
-        exp2 = prevExp;
-    }
+    updatePrevExpression();
 
     //Calculate result
     return compressNumber(calculate(+exp1, mathSymbol, +exp2));
@@ -173,9 +185,6 @@ const handleNumberPad = (newInput) => {
     if(newInput !== '=') {
         displayValue = buildExpressions(newInput);
     }
-
-    //Update the clear btn
-    clearBtn.textContent = +displayValue > 0 ? 'C':'CE';
 
     //Display result
     updateDisplay(displayValue);
@@ -286,6 +295,47 @@ document.addEventListener('keydown', (event) => {
     handleKeyboardClearDisplay(keyCode);
 
     prevKey = keyCode;
-})
+});
 
+let memory = [];
+memoryBtnsArr.forEach((btn) => {
+    btn.addEventListener('click', (event) => {
+        
+        if(memory.length <= 0 && !exp2) return;
+        
+        const memoryBtnInput = event.target.textContent;
+        let result = 0;
+        
+        switch(memoryBtnInput) {
+            case 'MC':
+                resetValues();
+                memory = []; 
+                updateDisplay('0');
+                break;
+            case 'MR':
+                updatePrevExpression();
+
+                const reducer = (accum, currValue) => accum + currValue;
+                let sum = memory.reduce(reducer);
+
+                updateDisplay(sum);
+                break;
+            case 'M+':
+                handleNumberPad('=');
+                result = +document.querySelector(DOMstrings.displayInput).value;
+                memory.push(result);
+                break;
+            case 'M-':
+                handleNumberPad('=');
+                result = +document.querySelector(DOMstrings.displayInput).value;
+                memory.push(-1 * result);
+                break;
+            default:
+                console.log(memoryBtnInput);
+        }
+
+        console.log(memory);
+
+    });
+})
 
