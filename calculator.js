@@ -253,7 +253,6 @@ const handleClearDisplay = () => {
         clearCurrentExpression();
         clearBtn.textContent = 'CE';
     }
-    console.log(clearBtn.textContent);
 }
 
 const handleKeyboardClearDisplay = (keyCode) => {
