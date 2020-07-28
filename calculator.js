@@ -123,9 +123,6 @@ const buildExpression = (newInput, exp) => {
     return exp;
 }
 
-//*---------------------------*/
-/*------- MAIN METHODS ------*/
-/*---------------------------*/
 const buildExpressions = (newInput) => {
     if(!mathSymbol) {
         //Build expression 1
@@ -167,6 +164,10 @@ const evaluateEquation = () => {
     //Calculate result
     return compressNumber(calculate(+exp1, mathSymbol, +exp2));
 }
+
+//*---------------------------*/
+/*------- MAIN METHODS ------*/
+/*---------------------------*/
 
 // Handles Number Pad Section Logic
 const handleNumberPad = (newInput) => {
@@ -292,6 +293,7 @@ document.addEventListener('keydown', (event) => {
     prevKey = keyCode;
 });
 
+//Memory Pad Event Listener
 memoryBtnsArr.forEach((btn) => {
     btn.addEventListener('click', (event) => {
         const memoryInput = document.querySelector(DOMstrings.memoryInput);
