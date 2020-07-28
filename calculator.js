@@ -163,7 +163,7 @@ const compressNumber = (num, digits=3) => {
 // Calculates equation and handles repeated evaluations when called in a row. 
 const evaluateEquation = () => {
 
-    if(!exp2) return;
+    if(!exp2) return exp1;
 
     //Prepare for the second time we evaluate the equation.
     updatePrevExpression();
@@ -297,11 +297,11 @@ document.addEventListener('keydown', (event) => {
     prevKey = keyCode;
 });
 
-let memory = [];
+let memorySum = 0;
 memoryBtnsArr.forEach((btn) => {
     btn.addEventListener('click', (event) => {
         
-        if(memory.length <= 0 && !exp2) return;
+        // if(!memorySum && !exp2) return;
         
         const memoryBtnInput = event.target.textContent;
         let result = 0;
@@ -309,32 +309,33 @@ memoryBtnsArr.forEach((btn) => {
         switch(memoryBtnInput) {
             case 'MC':
                 resetValues();
-                memory = []; 
+                memorySum = 0;
                 updateDisplay('0');
                 break;
             case 'MR':
-                updatePrevExpression();
+                if(!mathSymbol) {
+                    exp1=memorySum;
+                } else {
+                    exp2=memorySum;
+                }
 
-                const reducer = (accum, currValue) => accum + currValue;
-                let sum = memory.reduce(reducer);
-
-                updateDisplay(sum);
+                updateDisplay(memorySum);
                 break;
             case 'M+':
-                handleNumberPad('=');
                 result = +document.querySelector(DOMstrings.displayInput).value;
-                memory.push(result);
+                memorySum += result;
+                memorySum = compressNumber(memorySum);
                 break;
             case 'M-':
-                handleNumberPad('=');
                 result = +document.querySelector(DOMstrings.displayInput).value;
-                memory.push(-1 * result);
+                memorySum += (-1 * result);
+                memorySum = compressNumber(memorySum);
                 break;
             default:
-                console.log(memoryBtnInput);
+                console.log("Something went wrong, memory btn does not exist");
         }
 
-        console.log(memory);
+        console.log(memorySum);
 
     });
 })
