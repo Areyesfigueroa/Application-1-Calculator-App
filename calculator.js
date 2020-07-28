@@ -122,18 +122,6 @@ const buildExpression = (newInput, exp) => {
     return exp;
 }
 
-const updatePrevExpression = () => {
-    const inputValue = document.querySelector(DOMstrings.displayInput).value;
-
-    //Prepare for the second time we evaluate the equation.
-    if(!prevExp) {
-        prevExp = exp2;
-    } else {
-        exp1 = inputValue;
-        exp2 = prevExp;
-    }
-}
-
 //*---------------------------*/
 /*------- MAIN METHODS ------*/
 /*---------------------------*/
@@ -166,7 +154,12 @@ const evaluateEquation = () => {
     if(!exp2) return exp1;
 
     //Prepare for the second time we evaluate the equation.
-    updatePrevExpression();
+    if(!prevExp) {
+        prevExp = exp2;
+    } else {
+        exp1 = inputValue;
+        exp2 = prevExp;
+    }
 
     //Calculate result
     return compressNumber(calculate(+exp1, mathSymbol, +exp2));
@@ -300,9 +293,7 @@ document.addEventListener('keydown', (event) => {
 let memorySum = 0;
 memoryBtnsArr.forEach((btn) => {
     btn.addEventListener('click', (event) => {
-        
-        // if(!memorySum && !exp2) return;
-        
+                
         const memoryBtnInput = event.target.textContent;
         let result = 0;
         
@@ -334,9 +325,6 @@ memoryBtnsArr.forEach((btn) => {
             default:
                 console.log("Something went wrong, memory btn does not exist");
         }
-
-        console.log(memorySum);
-
     });
 })
 
