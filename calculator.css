@@ -25,12 +25,16 @@ html {
 }
 
 body * {
-    font-size: 1.2rem;
+    font-size: 20px;
     font-family: 'Orbitron', Arial, sans-serif;
 }
 
 button {
     cursor: pointer;
+    outline: none;
+}
+
+input {
     outline: none;
 }
 
@@ -124,11 +128,12 @@ DISPLAY
     height: auto;
     border: 1px solid var(--calc-bg-color);
     box-sizing: border-box;
+    margin: 25px 10px 10px 10px;
+
 }
 
 .display-group {
     position: relative;
-    margin: 25px 10px 10px 10px;
     display: flex;
     flex-direction: row;
     justify-content: space-evenly;
@@ -141,11 +146,31 @@ DISPLAY
     height: 100%;
     top: 0;
     left: 0;
+    color: var(--numpad-btn-color);
+    background-color: var(--operation-bg-btn-color);
+    border: 5px solid black;
+    border-right: none;
+    border-radius: var(--bevel-radius) 0 0 var(--bevel-radius);
+    font-size: inherit;
+}
+
+.clear-btn:active,
+.clear-btn:hover {
+    color: var(--numpad-active-btn-color);
+    background-color:var(--operation-active-bg-btn-color);
+}
+
+.memory-input {
+    display: block;
+    margin-top: 10px;
+    width: 100%;
+    font-size: 65%;
     color: var(--display-font-color);
     background-color: black;
     border: 1.5px solid rgba(0, 0, 0, 0);
-    border-radius: var(--bevel-radius) 0 0 var(--bevel-radius);
-    font-size: inherit;
+    padding: 5px 10px;
+    border-radius: var(--bevel-radius);
+    box-sizing: inherit;
 }
 
 .display-input {
@@ -174,7 +199,7 @@ PAD
     padding: 5px;
 }
 
-@media (max-width: 700px) {
+@media (max-width: 600px) {
     .calculator {
         max-width: 85%;
     }

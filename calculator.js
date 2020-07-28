@@ -6,8 +6,8 @@ const DOMstrings = {
     operation: 'operation',
     memory: "memory",
     displayInput: ".display-input",
-    clearBtn: ".clear-btn"
-
+    clearBtn: ".clear-btn",
+    memoryInput: ".memory-input"
 };
 
 const KeyCodes = {
@@ -33,9 +33,10 @@ let numpadBtnsArr = padBtnsArr.filter((btn) => !btn.classList.contains(DOMstring
 let operationBtnsArr = padBtnsArr.filter((btn) => btn.classList.contains(DOMstrings.operation));
 let memoryBtnsArr = padBtnsArr.filter((btn) => btn.classList.contains(DOMstrings.memory));
 
-let exp1='', exp2='', result=0, prevExp=0;
+let exp1='', exp2='', prevExp=0;
 let mathSymbol = null;
 let prevKey = 0;
+let memorySum = 0;
 
 //*---------------------------*/
 /*---- HELPER METHODS ------*/
@@ -292,18 +293,15 @@ document.addEventListener('keydown', (event) => {
     prevKey = keyCode;
 });
 
-let memorySum = 0;
 memoryBtnsArr.forEach((btn) => {
     btn.addEventListener('click', (event) => {
-                
-        const memoryBtnInput = event.target.textContent;
+        const memoryInput = document.querySelector(DOMstrings.memoryInput);
+        const memoryBtn = event.target.textContent;
         let result = 0;
         
-        switch(memoryBtnInput) {
+        switch(memoryBtn) {
             case 'MC':
-                resetValues();
                 memorySum = 0;
-                updateDisplay('0');
                 break;
             case 'MR':
                 if(!mathSymbol) {
@@ -311,7 +309,6 @@ memoryBtnsArr.forEach((btn) => {
                 } else {
                     exp2=memorySum;
                 }
-
                 updateDisplay(memorySum);
                 break;
             case 'M+':
@@ -327,6 +324,7 @@ memoryBtnsArr.forEach((btn) => {
             default:
                 console.log("Something went wrong, memory btn does not exist");
         }
+        memoryInput.value = `MEM: ${memorySum}`;
     });
 })
 
