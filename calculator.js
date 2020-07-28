@@ -67,7 +67,7 @@ const updateDisplay = (num) => {
     if(Number.isNaN(num)) return;
 
     //Update the clear btn
-    clearBtn.textContent = +num > 0 ? 'C':'CE';
+    clearBtn.textContent = num > 0 ? 'C':'CE';
 
     //Update Input element
     const displayInputEl = document.querySelector(DOMstrings.displayInput);
@@ -152,6 +152,8 @@ const compressNumber = (num, digits=3) => {
 const evaluateEquation = () => {
 
     if(!exp2) return exp1;
+
+    const inputValue = document.querySelector(DOMstrings.displayInput).value;
 
     //Prepare for the second time we evaluate the equation.
     if(!prevExp) {
